@@ -18,7 +18,7 @@ class ChatBot:
     # go through preprocessor but forgo postprocessing stage
     def should_respond(self, text, push_chain):
         if push_chain:
-            self.conversation_chain.append(push_chain)
+            self.conversation_chain.append(text)
         if self.conversation_chain:
             text = '\n'.join(self.conversation_chain)
         
