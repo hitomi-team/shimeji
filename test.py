@@ -1,21 +1,38 @@
 from shimeji import ChatBot
-from shimeji.model_provider import ModelProvider
+from shimeji.model_provider import ModelProvider, Sukima_ModelProvider
 from shimeji.preprocessor import ContextPreprocessor
+from shimeji.postprocessor import NewlinePrunerPostprocessor
 
-class DummyModelProvider(ModelProvider):
-    def __init__(self, endpoint_url: str, **kwargs):
-        super().__init__(endpoint_url, **kwargs)
+model_provider = Sukima_ModelProvider(
+    'http://c1.shitposts.club:8000',
+    username='test2',
+    password='test2',
+    args={
+        'model': 'c1-6b',
+        'softprompt': '014669ba-fd58-4b97-bb76-35da2ff438ea',
+        'prompt': '',
+        'sample_args': {
+            'temp': 0.5,
+            'tfs': 0.993
+        },
+        'gen_args': {
+            'max_length': 100
+        }
+    }
+)
 
-    def generate(self, args=None):
-        return 'hello'
+chatbot = ChatBot(
+    name='The Discriminator',
+    model_provider=model_provider,
+    preprocessors=[ContextPreprocessor()],
+    postprocessors=[NewlinePrunerPostprocessor()]
+)
 
-    def should_respond(self, context=None, name=None):
-        return True
-
-    def response(self, context):
-        return self.generate()
-
-chatbot = ChatBot('chatbot', DummyModelProvider(endpoint_url=None, args=None), preprocessors=[ContextPreprocessor], postprocessors=None)
-
-if chatbot.should_respond('hello'):
-    print(chatbot.respond('hello'))
+while True:
+    try:
+        user_input = input('User: ')
+        response = chatbot.respond('User: ' + user_input, push_chain=True)
+        print(f'Eiki Shiki:{response}')
+    except KeyboardInterrupt:
+        print('\n==Conversation Chain==\n', '\n'.join(chatbot.conversation_chain))
+        break

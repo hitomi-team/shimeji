@@ -69,10 +69,3 @@ class Sukima_ModelProvider(ModelProvider):
         args['gen_args']['min_length'] = 1
         response = self.generate(args)
         return response
-
-
-# For testing purposes only
-if __name__ == '__main__':
-    model = Sukima_ModelProvider('http://c1.shitposts.club:8000', username='test2', password='test2', args={'model': 'c1-6b', 'prompt': '', 'sample_args': {'temp': 1.0}, 'gen_args': {'max_length': 100}})
-    print(model.should_respond('haru: hi eiki\nThe Discriminator: Hello, Haru.\nharu: how are you?\n', 'The Discriminator'))
-    print(model.response('haru: hi eiki\nThe Discriminator: Hello, Haru.\nharu: how are you?\n'))

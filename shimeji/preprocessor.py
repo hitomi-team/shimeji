@@ -1,7 +1,7 @@
 from .util import *
 
 class Preprocessor:
-    def __call__(self, context: str) -> str:
+    def __call__(self, context: str, is_respond: bool, name: str) -> str:
         raise NotImplementedError(f'{self.__class__} is an abstract class')
 
 class ContextPreprocessor(Preprocessor):
@@ -112,6 +112,12 @@ class ContextPreprocessor(Preprocessor):
                 newctx.append(after[aIdx])
         return '\n'.join(newctx)
 
-    def __call__(self, context: str) -> str:
-        self.add_entry(ContextEntry(text=context, suffix='\n', reserved_tokens=512, insertion_order=0, trim_direction=TRIM_DIR_TOP, forced_activation=True, cascading_activation=True, insertion_type=INSERTION_TYPE_NEWLINE, insertion_position=-1))
-        return self.context()
+    def __call__(self, context: str, is_respond: bool, name: str) -> str:
+        if is_respond:
+            main_entry = ContextEntry(text=context, suffix=f'\n{name}:', reserved_tokens=512, insertion_order=0, trim_direction=TRIM_DIR_TOP, forced_activation=True, cascading_activation=True, insertion_type=INSERTION_TYPE_NEWLINE, insertion_position=-1)
+        else:
+            main_entry = ContextEntry(text=context, suffix='\n', reserved_tokens=512, insertion_order=0, trim_direction=TRIM_DIR_TOP, forced_activation=True, cascading_activation=True, insertion_type=INSERTION_TYPE_NEWLINE, insertion_position=-1)
+        self.add_entry(main_entry)
+        constructed_context = self.context()
+        self.del_entry(main_entry)
+        return constructed_context

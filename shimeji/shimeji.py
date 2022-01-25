@@ -16,22 +16,41 @@ class ChatBot:
         self.conversation_chain = []
     
     # go through preprocessor but forgo postprocessing stage
-    def should_respond(self, text):
+    def should_respond(self, text, push_chain):
+        if push_chain:
+            self.conversation_chain.append(push_chain)
+        if self.conversation_chain:
+            text = '\n'.join(self.conversation_chain)
+        
         if self.preprocessors:
             for preprocessor in self.preprocessors:
-                text = preprocessor(text)
+                text = preprocessor(text, is_respond=False, name=self.name)
         
         return self.model_provider.should_respond(text, self.name)
 
-    def respond(self, text):
+    def respond(self, text, push_chain):
+        if push_chain:
+            self.conversation_chain.append(text)
+        if self.conversation_chain:
+            text = '\n'.join(self.conversation_chain)
+
         if self.preprocessors:
             for preprocessor in self.preprocessors:
-                text = preprocessor(text)
+                text = preprocessor.__call__(text, is_respond=True, name=self.name)
         
         response = self.model_provider.response(text)
 
         if self.postprocessors:
             for postprocessor in self.postprocessors:
-                response = postprocessor(response)
+                response = postprocessor.__call__(response)
+        
+        if push_chain:
+            self.conversation_chain.append(f'{self.name}:{response}')
         
         return response
+
+    def conditional_response(self, text, push_chain=True):
+        if self.should_respond(text, push_chain):
+            return self.respond(text, False)
+        else:
+            return None
