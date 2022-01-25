@@ -12,21 +12,26 @@ class ChatBot:
 
         self.preprocessors = kwargs.get('preprocessors', [])
         self.postprocessors = kwargs.get('postprocessors', [])
+
+        self.conversation_chain = []
     
     # go through preprocessor but forgo postprocessing stage
     def should_respond(self, text):
-        for preprocessor in self.preprocessors:
-            text = preprocessor(text)
+        if self.preprocessors:
+            for preprocessor in self.preprocessors:
+                text = preprocessor(text)
         
         return self.model_provider.should_respond(text, self.name)
 
     def respond(self, text):
-        for preprocessor in self.preprocessors:
-            text = preprocessor(text)
+        if self.preprocessors:
+            for preprocessor in self.preprocessors:
+                text = preprocessor(text)
         
         response = self.model_provider.response(text)
 
-        for postprocessor in self.postprocessors:
-            response = postprocessor(response)
+        if self.postprocessors:
+            for postprocessor in self.postprocessors:
+                response = postprocessor(response)
         
         return response
