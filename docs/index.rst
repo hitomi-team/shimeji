@@ -5,6 +5,7 @@ Shimeji is a Python library that provides a simple framework for
 building dynamic and open domain chatbots.
 
 **Features:**
+
 - **Open domain**: Chatbots developed with this library can respond to
   any input.
 - **API Agnostic**: Chatbots developed with this library can be
