@@ -21,3 +21,20 @@ Here is an example conversation produced with the framework:
     Bot: I'm fine.
     User: Have you been up to anything lately?
     Bot: I haven't been doing anything.
+
+API Documentation
+===================================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   api
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
