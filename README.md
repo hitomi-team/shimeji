@@ -1,7 +1,7 @@
-# shimeji
+![logo](logo.png)
 
 ## Overview
-A platform and API Agnostic Framework to assist with chatbot development.
+A platform and API Agnostic library for writing Open Domain and General Chatbots.
 
 To view documentation, [click here.](https://shimeji.readthedocs.io/en/latest/)
 
