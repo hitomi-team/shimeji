@@ -55,9 +55,9 @@ Postprocessors
    :undoc-members:
    :show-inheritance:
 
-``NewlinePrunerPostProcessor``
+``NewlinePrunerPostprocessor``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: shimeji.NewlinePrunerPostProcessor
+.. autoclass:: shimeji.NewlinePrunerPostprocessor
    :members:
    :undoc-members:
    :show-inheritance:
