@@ -1,22 +1,61 @@
 from .util import *
 
 class Preprocessor:
+    """Abstract class for preprocessors.
+    """
     def __call__(self, context: str, is_respond: bool, name: str) -> str:
+        """Process the given context before the ModelProvider is called.
+
+        :param context: The context to preprocess.
+        :type context: str
+        :param is_respond: Whether the context is a chatbot response or not.
+        :type is_respond: bool
+        :param name: The name of the chatbot.
+        :type name: str
+        :raises NotImplementedError: If the preprocessor method is not implemented.
+        :return: The processed context.
+        :rtype: str
+        """
         raise NotImplementedError(f'{self.__class__} is an abstract class')
 
 class ContextPreprocessor(Preprocessor):
+    """A Preprocessor that builds a context from a list of ContextEntry objects."""
     def __init__(self, token_budget=1024):
+        """Initialize a ContextPreprocessor.
+
+        :param token_budget: The maximum number of tokens that can be used in the context, defaults to 1024.
+        :type token_budget: int, optional
+        """
         self.token_budget = token_budget
         self.entries = []
     
     def add_entry(self, entry):
+        """Add a ContextEntry to the ContextPreprocessor.
+
+        :param entry: The ContextEntry to add.
+        :type entry: ContextEntry
+        """
         self.entries.append(entry)
     
     def del_entry(self, entry):
+        """Delete a ContextEntry from the ContextPreprocessor.
+
+        :param entry: The ContextEntry to delete.
+        :type entry: ContextEntry
+        """
         self.entries.remove(entry)
     
     # return true if key is found in an entry's text
     def key_lookup(self, entry_a, entry_b):
+        """Check if a ContextEntry's key is found in an entry's text.
+
+        :param entry_a: The ContextEntry to check.
+        :type entry_a: ContextEntry
+        :param entry_b: Another ContextEntry to check.
+        :type entry_b: ContextEntry
+        :return: Whether the key is found in the text.
+        :rtype: bool
+        """
         for i in entry_b.keys:
             if i == '':
                 continue
@@ -26,6 +65,15 @@ class ContextPreprocessor(Preprocessor):
     
     # recursive function that searches for other entries that are activated
     def cascade_lookup(self, entry, nest=0):
+        """Search for other entries that are activated by a given entry.
+
+        :param entry: The entry to recursively search for other entries in.
+        :type entry: ContextEntry
+        :param nest: The maximum amount of recursion to perform, defaults to 0.
+        :type nest: int, optional
+        :return: A list of other entries that are activated by the given entry.
+        :rtype: list
+        """
         cascaded_entries = []
         if nest > 3:
             return []
@@ -46,6 +94,13 @@ class ContextPreprocessor(Preprocessor):
         return position
     
     def context(self, budget=1024):
+        """Build the context from the ContextPreprocessor's entries.
+
+        :param budget: The maximum number of tokens that can be used in the context, defaults to 1024.
+        :type budget: int, optional
+        :return: The built context.
+        :rtype: str
+        """
         # sort self.entries by insertion_order
         self.entries.sort(key=lambda x: x.insertion_order, reverse=True)
         activated_entries = []
@@ -113,6 +168,18 @@ class ContextPreprocessor(Preprocessor):
         return '\n'.join(newctx)
 
     def __call__(self, context: str, is_respond: bool, name: str) -> str:
+        """Build the context from the ContextPreprocessor's entries.
+
+        :param context: The context to build the context from.
+        :type context: str
+        :param is_respond: Whether the context is being built for a chatbot response.
+        :type is_respond: bool
+        :param name: The name of the chatbot.
+        :type name: str
+        :return: The processed context.
+        :rtype: str
+        """
+
         if is_respond:
             main_entry = ContextEntry(text=context, suffix=f'\n{name}:', reserved_tokens=512, insertion_order=0, trim_direction=TRIM_DIR_TOP, forced_activation=True, cascading_activation=True, insertion_type=INSERTION_TYPE_NEWLINE, insertion_position=-1)
         else:
