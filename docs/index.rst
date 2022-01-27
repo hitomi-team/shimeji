@@ -1,7 +1,7 @@
 Shimeji
 =======
 
-Shimeji is a Python library that provides a simple framework for
+Shimeji is a Python library that provides functions for
 building dynamic and open domain chatbots.
 
 **Features:**
