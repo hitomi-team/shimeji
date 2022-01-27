@@ -21,8 +21,10 @@ model_provider = Sukima_ModelProvider(
     }
 )
 
+bot_name = input('Enter a bot name:')
+
 chatbot = ChatBot(
-    name='The Discriminator',
+    name=bot_name,
     model_provider=model_provider,
     preprocessors=[ContextPreprocessor()],
     postprocessors=[NewlinePrunerPostprocessor()]
@@ -32,7 +34,7 @@ while True:
     try:
         user_input = input('User: ')
         response = chatbot.respond('User: ' + user_input, push_chain=True)
-        print(f'Eiki Shiki:{response}')
+        print(f'{bot_name}:{response}')
     except KeyboardInterrupt:
         print('\n==Conversation Chain==\n', '\n'.join(chatbot.conversation_chain))
         break
