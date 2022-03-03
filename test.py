@@ -1,24 +1,17 @@
 from shimeji import ChatBot
-from shimeji.model_provider import ModelProvider, Sukima_ModelProvider
+from shimeji.model_provider import ModelProvider, Sukima_ModelProvider, ModelGenRequest, ModelGenArgs, ModelSampleArgs
 from shimeji.preprocessor import ContextPreprocessor
 from shimeji.postprocessor import NewlinePrunerPostprocessor
 
+gen_args = ModelGenArgs(max_length=100, min_length=1, eos_token_id=198)
+sample_args = ModelSampleArgs(temp=0.75, top_p=0.725, typical_p=0.95, rep_p=1.125)
+model_args = ModelGenRequest(model='c1-6B-8bit', prompt='', sample_args=sample_args, gen_args=gen_args)
+
 model_provider = Sukima_ModelProvider(
-    'http://c1.shitposts.club:8000',
-    username='test2',
-    password='test2',
-    args={
-        'model': 'c1-6b',
-        'softprompt': '014669ba-fd58-4b97-bb76-35da2ff438ea',
-        'prompt': '',
-        'sample_args': {
-            'temp': 0.5,
-            'tfs': 0.993
-        },
-        'gen_args': {
-            'max_length': 100
-        }
-    }
+    'http://192.168.0.147:8000',
+    username='username',
+    password='password',
+    args=model_args
 )
 
 bot_name = input('Enter a bot name:')
