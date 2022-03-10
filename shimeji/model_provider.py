@@ -149,7 +149,7 @@ class Sukima_ModelProvider(ModelProvider):
             raise Exception('username, password, and or token are not in kwargs')
         
         try:
-            r = requests.post(f'{self.endpoint_url}/api/v1/users/token', data={'username': self.kwargs['username'], 'password': self.kwargs['password']}, timeout=2.0)
+            r = requests.post(f'{self.endpoint_url}/api/v1/users/token', data={'username': self.kwargs['username'], 'password': self.kwargs['password']}, timeout=10.0)
         except Exception as e:
             raise e
         if r.status_code == 200:
@@ -191,7 +191,7 @@ class Sukima_ModelProvider(ModelProvider):
             }
         }
         try:
-            r = requests.post(f'{self.endpoint_url}/api/v1/models/generate', data=json.dumps(args), headers={'Authorization': f'Bearer {self.token}'}, timeout=30.0)
+            r = requests.post(f'{self.endpoint_url}/api/v1/models/generate', data=json.dumps(args), headers={'Authorization': f'Bearer {self.token}'}, timeout=120.0)
         except Exception as e:
             raise e
         if r.status_code == 200:
@@ -234,7 +234,7 @@ class Sukima_ModelProvider(ModelProvider):
         }
         async with aiohttp.ClientSession() as session:
             try:
-                async with session.post(f'{self.endpoint_url}/api/v1/models/generate', json=args, headers={'Authorization': f'Bearer {self.token}'}, timeout=30.0) as resp:
+                async with session.post(f'{self.endpoint_url}/api/v1/models/generate', json=args, headers={'Authorization': f'Bearer {self.token}'}, timeout=120.0) as resp:
                     if resp.status == 200:
                         js = await resp.json()
                         return js['output'][len(args['prompt']):]
