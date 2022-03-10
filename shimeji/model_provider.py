@@ -11,6 +11,7 @@ class ModelGenArgs(BaseModel):
     min_length: Optional[int] = None
     eos_token_id: Optional[int] = None
     logprobs: Optional[int] = None
+    best_of: Optional[int] = None
 
     def toJSON(self):
         return json.dumps(self.dict())
@@ -184,7 +185,9 @@ class Sukima_ModelProvider(ModelProvider):
                 'max_length': args.gen_args.max_length,
                 'max_time': args.gen_args.max_time,
                 'min_length': args.gen_args.min_length,
-                'eos_token_id': args.gen_args.eos_token_id
+                'eos_token_id': args.gen_args.eos_token_id,
+                'logprobs': args.gen_args.logprobs,
+                'best_of': args.gen_args.best_of
             }
         }
         try:
@@ -224,7 +227,9 @@ class Sukima_ModelProvider(ModelProvider):
                 'max_length': args.gen_args.max_length,
                 'max_time': args.gen_args.max_time,
                 'min_length': args.gen_args.min_length,
-                'eos_token_id': args.gen_args.eos_token_id
+                'eos_token_id': args.gen_args.eos_token_id,
+                'logprobs': args.gen_args.logprobs,
+                'best_of': args.gen_args.best_of
             }
         }
         async with aiohttp.ClientSession() as session:
