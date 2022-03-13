@@ -265,7 +265,7 @@ class Sukima_ModelProvider(ModelProvider):
         args.sample_args.temp = 0.25
         args.sample_args.phrase_biases = phrase_bias
         response = self.generate(args)
-        if response.startswith(name):
+        if name in response:
             return True
         else:
             return False
@@ -292,7 +292,7 @@ class Sukima_ModelProvider(ModelProvider):
         args.sample_args.temp = 0.25
         args.sample_args.phrase_biases = phrase_bias
         response = await self.generate_async(args)
-        if response.startswith(name):
+        if name in response:
             return True
         else:
             return False
