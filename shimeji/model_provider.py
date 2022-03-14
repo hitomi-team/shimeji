@@ -3,6 +3,7 @@ from typing import Optional, List, Any
 from pydantic import BaseModel
 import requests
 import json
+import copy
 
 
 class ModelGenArgs(BaseModel):
@@ -107,6 +108,15 @@ class ModelProvider:
         :raises NotImplementedError: If the generate method is not implemented.
         """
         raise NotImplementedError('generate method is required')
+    
+    async def generate_async(self, args):
+        """Generate a response from the ModelProvider's endpoint asynchronously.
+        
+        :param args: The arguments to pass to the endpoint.
+        :type args: dict
+        :raises NotImplementedError: If the generate method is not implemented.
+        """
+        raise NotImplementedError('generate method is required')
 
     def should_respond(self, context, name):
         """Determine if the ModelProvider predicts that the name should respond to the given context.
@@ -118,9 +128,29 @@ class ModelProvider:
         :raises NotImplementedError: If the should_respond method is not implemented.
         """
         raise NotImplementedError('should_respond method is required')
+    
+    def should_respond_async(self, context, name):
+        """Determine if the ModelProvider predicts that the name should respond to the given context asynchronously.
+
+        :param context: The context to use.
+        :type context: str
+        :param name: The name to check.
+        :type name: str
+        :raises NotImplementedError: If the should_respond method is not implemented.
+        """
+        raise NotImplementedError('should_respond method is required')
 
     def response(self, context):
         """Generate a response from the ModelProvider's endpoint.
+            
+        :param context: The context to use.
+        :type context: str
+        :raises NotImplementedError: If the response method is not implemented.
+        """
+        raise NotImplementedError('response method is required')
+    
+    def response_async(self, context):
+        """Generate a response from the ModelProvider's endpoint asynchronously.
             
         :param context: The context to use.
         :type context: str
@@ -149,7 +179,7 @@ class Sukima_ModelProvider(ModelProvider):
             raise Exception('username, password, and or token are not in kwargs')
         
         try:
-            r = requests.post(f'{self.endpoint_url}/api/v1/users/token', data={'username': self.kwargs['username'], 'password': self.kwargs['password']}, timeout=10.0)
+            r = requests.post(f'{self.endpoint_url}/api/v1/users/token', data={'username': self.kwargs['username'], 'password': self.kwargs['password']}, timeout=2.0)
         except Exception as e:
             raise e
         if r.status_code == 200:
@@ -253,16 +283,22 @@ class Sukima_ModelProvider(ModelProvider):
         :return: Whether or not the name should respond to the given context.
         :rtype: bool
         """
+
         phrase_bias = ModelPhraseBiasArgs
         phrase_bias.sequences = [name]
         phrase_bias.bias = 1.5
         phrase_bias.ensure_sequence_finish = True
         phrase_bias.generate_once = True
 
-        args = self.kwargs['args'] # get default args
+        args = copy.deepcopy(self.kwargs['args'])
         args.prompt = context
+        args.gen_args.max_length = 10
         args.gen_args.eos_token_id = 25
+        args.gen_args.best_of = None
         args.sample_args.temp = 0.25
+        args.sample_args.rep_p = None
+        args.sample_args.rep_p_range = None
+        args.sample_args.rep_p_slope = None
         args.sample_args.phrase_biases = phrase_bias
         response = self.generate(args)
         if name in response:
@@ -286,13 +322,18 @@ class Sukima_ModelProvider(ModelProvider):
         phrase_bias.ensure_sequence_finish = True
         phrase_bias.generate_once = True
 
-        args = self.kwargs['args'] # get default args
+        args = copy.deepcopy(self.kwargs['args'])
         args.prompt = context
+        args.gen_args.max_length = 10
         args.gen_args.eos_token_id = 25
+        args.gen_args.best_of = None
         args.sample_args.temp = 0.25
+        args.sample_args.rep_p = None
+        args.sample_args.rep_p_range = None
+        args.sample_args.rep_p_slope = None
         args.sample_args.phrase_biases = phrase_bias
         response = await self.generate_async(args)
-        if name in response:
+        if response.startswith(name):
             return True
         else:
             return False
