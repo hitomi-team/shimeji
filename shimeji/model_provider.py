@@ -1,6 +1,7 @@
 import aiohttp
 from typing import Optional, List, Any
 from pydantic import BaseModel
+from .util import tokenizer
 import requests
 import json
 import copy
@@ -355,6 +356,91 @@ class Sukima_ModelProvider(ModelProvider):
 
     async def response_async(self, context):
         """Generate a response from the Sukima endpoint asynchronously.
+
+        :param context: The context to use.
+        :type context: str
+        :return: The response from the endpoint.
+        :rtype: str
+        """
+        args = self.kwargs['args']
+        args.prompt = context
+        args.gen_args.eos_token_id = 198
+        args.gen_args.min_length = 1
+        response = await self.generate_async(args)
+        return response
+
+class TextSynth_ModelProvider(ModelProvider):
+    def __init__(self, endpoint_url: str = 'https://api.textsynth.com', **kwargs):
+        """Constructor for TextSynth_ModelProvider.
+
+        :param endpoint_url: The URL for the TextSynth endpoint.
+        :type endpoint_url: str
+        :param token: The API token for the TextSynth endpoint.
+        :type token: str
+        """
+        super().__init__(endpoint_url, **kwargs)
+        self.auth()
+    
+    def auth(self):
+        """Authenticate with the TextSynth endpoint.
+
+        :raises Exception: If the authentication fails.
+        """
+        if 'token' not in self.kwargs:
+            raise Exception('token is not in kwargs')
+        self.token = self.kwargs['token']
+    
+    async def generate_async(self, args: ModelGenRequest) -> str:
+        """Generate a response from the TextSynth endpoint.
+        
+        :param args: The arguments to pass to the endpoint.
+        :type args: dict
+        :return: The response from the endpoint.
+        :rtype: str
+        :raises Exception: If the request fails.
+        """
+        model = args.model
+        args = {
+            'prompt': args.prompt,
+            'max_tokens': args.gen_args.max_length,
+            'temperature': args.sample_args.temp,
+            'top_p': args.sample_args.top_p,
+            'top_k': args.sample_args.top_k,
+            'stop': tokenizer.decode(args.gen_args.eos_token_id)
+        }
+        async with aiohttp.ClientSession() as session:
+            try:
+                async with session.post(f'{self.endpoint_url}/v1/engines/{model}/completions', json=args, headers={'Authorization': f'Bearer {self.token}'}, timeout=30.0) as resp:
+                    if resp.status == 200:
+                        js = await resp.json()
+                        return js['text']
+                    else:
+                        raise Exception(f'Could not generate response. Error: {resp.text}')
+            except Exception as e:
+                raise e
+
+    async def should_respond_async(self, context, name):
+        """Determine if the TextSynth endpoint predicts that the name should respond to the given context asynchronously.
+
+        :param context: The context to use.
+        :type context: str
+        :param name: The name to check.
+        :type name: str
+        :return: Whether or not the name should respond to the given context.
+        :rtype: bool
+        """
+        args = copy.deepcopy(self.kwargs['args'])
+        args.prompt = context
+        args.gen_args.max_length = 10
+        args.sample_args.temp = 0.25
+        response = await self.generate_async(args)
+        if response.startswith(name):
+            return True
+        else:
+            return False
+    
+    async def response_async(self, context):
+        """Generate a response from the TextSynth endpoint asynchronously.
 
         :param context: The context to use.
         :type context: str
