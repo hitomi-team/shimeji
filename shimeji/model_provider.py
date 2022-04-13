@@ -270,7 +270,7 @@ class Sukima_ModelProvider(ModelProvider):
                         js = await resp.json()
                         return js['output'][len(args['prompt']):]
                     else:
-                        raise Exception(f'Could not generate response. Error: {resp.text}')
+                        raise Exception(f'Could not generate response. Error: {resp.text()}')
             except Exception as e:
                 raise e
 
@@ -415,7 +415,7 @@ class TextSynth_ModelProvider(ModelProvider):
                         js = await resp.json()
                         return js['text']
                     else:
-                        raise Exception(f'Could not generate response. Error: {resp.text}')
+                        raise Exception(f'Could not generate response. Error: {resp.text()}')
             except Exception as e:
                 raise e
 
