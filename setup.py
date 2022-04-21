@@ -7,7 +7,7 @@ setup(
     name='Shimeji',
     description='Shimeji is a framework to create GPT-powered chatbots.',
     version='0.1.0',
-    license='BSD',
+    license='GPLv2',
     author='Hitomi-Team',
     url='https://github.com/hitomi-team/shimeji',
     packages=['shimeji'],
