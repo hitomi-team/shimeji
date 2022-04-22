@@ -119,9 +119,11 @@ class ModelProvider:
         """
         raise NotImplementedError('generate method is required')
     
-    async def hidden_async(self, text, layer):
+    async def hidden_async(self, model, text, layer):
         """Fetch a layer's hidden states from text.
-
+        
+        :param model: The model to extract hidden states from.
+        :type model: str
         :param text: The text to use.
         :type text: str
         :param layer: The layer to fetch the hidden states from.
@@ -285,9 +287,11 @@ class Sukima_ModelProvider(ModelProvider):
             except Exception as e:
                 raise e
 
-    async def hidden_async(self, args: ModelGenRequest, text, layer):
+    async def hidden_async(self, model, text, layer):
         """Fetch a layer's hidden states from text.
 
+        :param model: The model to extract hidden states from.
+        :type model: str
         :param text: The text to use.
         :type text: str
         :param layer: The layer to fetch the hidden states from.
@@ -296,7 +300,7 @@ class Sukima_ModelProvider(ModelProvider):
 
         async with aiohttp.ClientSession() as session:
             try:
-                async with session.post(f'{self.endpoint_url}/api/v1/models/hidden', json={'model': args.model, 'prompt': text, 'layers': [layer]}, headers={'Authorization': f'Bearer {self.token}'}) as resp:
+                async with session.post(f'{self.endpoint_url}/api/v1/models/hidden', json={'model': model, 'prompt': text, 'layers': [layer]}, headers={'Authorization': f'Bearer {self.token}'}) as resp:
                     if resp.status == 200:
                         return (await resp.json())[f'{layer}'][0]
                     else:
