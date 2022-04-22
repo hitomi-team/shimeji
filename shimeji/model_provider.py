@@ -118,6 +118,17 @@ class ModelProvider:
         :raises NotImplementedError: If the generate method is not implemented.
         """
         raise NotImplementedError('generate method is required')
+    
+    async def hidden_async(self, text, layer):
+        """Fetch a layer's hidden states from text.
+
+        :param text: The text to use.
+        :type text: str
+        :param layer: The layer to fetch the hidden states from.
+        :type layer: int
+        """
+
+        raise NotImplementedError('hidden_async method is required')
 
     def should_respond(self, context, name):
         """Determine if the ModelProvider predicts that the name should respond to the given context.
@@ -270,7 +281,26 @@ class Sukima_ModelProvider(ModelProvider):
                         js = await resp.json()
                         return js['output'][len(args['prompt']):]
                     else:
-                        raise Exception(f'Could not generate response. Error: {resp.text()}')
+                        raise Exception(f'Could not generate response. Error: {await resp.text()}')
+            except Exception as e:
+                raise e
+
+    async def hidden_async(self, args: ModelGenRequest, text, layer):
+        """Fetch a layer's hidden states from text.
+
+        :param text: The text to use.
+        :type text: str
+        :param layer: The layer to fetch the hidden states from.
+        :type layer: int
+        """
+
+        async with aiohttp.ClientSession() as session:
+            try:
+                async with session.post(f'{self.endpoint_url}/api/v1/models/hidden', json={'model': args.model, 'prompt': text, 'layers': [layer]}, headers={'Authorization': f'Bearer {self.token}'}) as resp:
+                    if resp.status == 200:
+                        return (await resp.json())[f'{layer}'][0]
+                    else:
+                        raise Exception(f'Could not fetch hidden states. Error: {await resp.text()}')
             except Exception as e:
                 raise e
 

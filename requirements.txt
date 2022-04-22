@@ -1,3 +1,7 @@
 transformers
 aiohttp
 pydantic
+asyncpg
+alembic
+sqlalchemy
+psycopg2
