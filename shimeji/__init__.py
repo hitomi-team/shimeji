@@ -10,4 +10,6 @@ from .shimeji import *
 from .model_provider import *
 from .preprocessor import *
 from .postprocessor import *
+from .memory import *
+from .memorystore_provider import *
 from .util import *
