@@ -1,8 +1,9 @@
 import logging
-import shimeji.model_provider
+from shimeji.model_provider import ModelProvider
+from shimeji.memorystore_provider import MemoryStoreProvider
 
 class ChatBot:
-    def __init__(self, name, model_provider, **kwargs):
+    def __init__(self, name: str, model_provider: ModelProvider, **kwargs):
         """Constructor for ChatBot.
 
         :param name: The name of the chatbot.

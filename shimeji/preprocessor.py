@@ -1,4 +1,6 @@
 from .util import *
+from .memory import memory_context, memory_sort
+from .memorystore_provider import MemoryStoreProvider
 
 class Preprocessor:
     """Abstract class for preprocessors.
@@ -8,15 +10,37 @@ class Preprocessor:
 
         :param context: The context to preprocess.
         :type context: str
-        :param is_respond: Whether the context is a chatbot response or not.
+        :param is_respond: Whether the context is being built for a chatbot response.
         :type is_respond: bool
         :param name: The name of the chatbot.
         :type name: str
-        :raises NotImplementedError: If the preprocessor method is not implemented.
         :return: The processed context.
         :rtype: str
         """
         raise NotImplementedError(f'{self.__class__} is an abstract class')
+
+class MemoryPreprocessor(Preprocessor):
+    """A Preprocessor that builds the long-term memory context."""
+    def __init__(self, memorystore: MemoryStoreProvider, short_term: int, long_term: int):
+        """Constructor for MemoryPreprocessor which uses the most recent memory as the present memory to build the long-term memory context.
+
+        :param memorystore: The memory store to use.
+        :type memorystore: MemoryStoreProvider
+        :param short_term: The number of short-term memories to use which will be left out of the long-term memory context.
+        :type short_term: int
+        :param long_term: The number of long-term memories to use.
+        :type long_term: int
+        """
+        self.memorystore = memorystore
+        self.short_term = short_term
+        self.long_term = long_term
+    
+    def __call__(self, context: str, is_respond: bool, name: str) -> str:
+        memories = self.memorystore.get(created_after=0)
+        now = memories[-1]
+        memories.remove(now)
+        long_term_context = memory_context(now, memories, short_term=self.short_term, long_term=self.long_term)
+        return long_term_context + context
 
 class ContextPreprocessor(Preprocessor):
     """A Preprocessor that builds a context from a list of ContextEntry objects."""
