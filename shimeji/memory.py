@@ -1,6 +1,8 @@
 from typing import List
 import numpy as np
 import base64
+import random
+import copy
 
 from shimeji.memorystore_provider import Memory, MemoryStoreProvider
 
@@ -16,14 +18,19 @@ def str_to_numpybin(string: str) -> np.array:
 def cosine_distance(a: np.array, b: np.array, factor=1000.0, epsilon=1e-6) -> float:
     return np.sum(np.sqrt((np.abs(b - a) / factor) + epsilon))
 
-def memory_sort(now: Memory, then: List[Memory], top_k: 256) -> List[Memory]:
+def memory_sort(now: Memory, then: List[Memory], top_k: int = 256, cutoff_idx: int = 128, max_samples: int = 512) -> List[Memory]:
     """
     Sort memories based on their cosine distance to the current memory.
     """
-    memories = [now]
-    memories.extend(then)
-    memories = sorted(memories, key=lambda x: cosine_distance(str_to_numpybin(now.encoding), str_to_numpybin(x.encoding)))
-    return memories[:top_k]
+
+    # get most recent memories
+    if cutoff_idx is not None and max_samples is not None:
+        memories = then[-cutoff_idx:]
+        memories.extend(random.sample(then[:len(then)-cutoff_idx], max_samples))
+    else:
+        memories = then
+
+    return sorted(memories, key=lambda x: cosine_distance(str_to_numpybin(now.encoding), str_to_numpybin(x.encoding)))[:top_k]
 
 def memory_context(now: Memory, then: List[Memory], short_term=20, long_term=10) -> str:
     """
