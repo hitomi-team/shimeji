@@ -24,7 +24,7 @@ def memory_sort(now: Memory, then: List[Memory], top_k: int = 256, cutoff_idx: i
     """
 
     # get most recent memories
-    if (cutoff_idx is not None and max_samples is not None) and (len(memories) > cutoff_idx + max_samples):
+    if (cutoff_idx is not None and max_samples is not None) and (len(then) > cutoff_idx + max_samples):
         memories = then[-cutoff_idx:]
         memories.extend(random.sample(then[:len(then)-cutoff_idx], max_samples))
     else:
