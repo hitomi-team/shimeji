@@ -132,6 +132,19 @@ class ModelProvider:
 
         raise NotImplementedError('hidden_async method is required')
 
+    async def image_label_async(self, model, url, labels):
+        """Classify an image with labels (CLIP).
+
+        :param model: The model to use for classification.
+        :type model: str
+        :param url: The image URL to use.
+        :type url: str
+        :param labels: The labels to use.
+        :type labels: list
+        """
+
+        raise NotImplementedError('image_label_async method is required')
+
     def should_respond(self, context, name):
         """Determine if the ModelProvider predicts that the name should respond to the given context.
 
@@ -305,6 +318,27 @@ class Sukima_ModelProvider(ModelProvider):
                         return (await resp.json())[f'{layer}'][0]
                     else:
                         raise Exception(f'Could not fetch hidden states. Error: {await resp.text()}')
+            except Exception as e:
+                raise e
+
+    async def image_label_async(self, model, url, labels):
+        """Classify an image with labels (CLIP).
+
+        :param model: The model to use for classification.
+        :type model: str
+        :param url: The image URL to use.
+        :type url: str
+        :param labels: The labels to use.
+        :type labels: list
+        """
+
+        async with aiohttp.ClientSession() as session:
+            try:
+                async with session.post(f'{self.endpoint_url}/api/v1/models/classify', json={'model': model, 'prompt': url, 'labels': labels}, headers={'Authorization': f'Bearer {self.token}'}) as resp:
+                    if resp.status == 200:
+                        return (await resp.json())
+                    else:
+                        raise Exception(f'Could not classify image. Error: {await resp.text()}')
             except Exception as e:
                 raise e
 
