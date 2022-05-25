@@ -4,4 +4,4 @@ pydantic
 asyncpg
 alembic
 sqlalchemy
-psycopg2
+psycopg2-binary
