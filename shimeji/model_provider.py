@@ -280,7 +280,7 @@ class Sukima_ModelProvider(ModelProvider):
                 'rep_p_range': args.sample_args.rep_p_range,
                 'rep_p_slope': args.sample_args.rep_p_slope,
                 'bad_words': args.sample_args.bad_words,
-                'logit_biases': args.ample_args.logit_biases 
+                'logit_biases': args.sample_args.logit_biases 
             },
             'gen_args': {
                 'max_length': args.gen_args.max_length,
