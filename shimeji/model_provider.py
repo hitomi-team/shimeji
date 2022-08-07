@@ -214,6 +214,20 @@ class Sukima_ModelProvider(ModelProvider):
         else:
             raise Exception(f'Could not authenticate with Sukima. Error: {r.text}')
         
+    def conv_listobj_to_listdict(self, list_objects): 
+        """Convert the elements of a list to a dictionary for JSON compatability.
+
+        :param list_objects: The list. 
+        :type list_objects: list
+        :return: A list which has it's elements converted to dictionaries.
+        :rtype: list
+        """
+
+        list_dict = []
+        for object in list_objects:
+            list_dict.append(vars(object))
+        return list_dict 
+    
     def generate(self, args: ModelGenRequest):
         """Generate a response from the Sukima endpoint.
         
@@ -223,6 +237,7 @@ class Sukima_ModelProvider(ModelProvider):
         :rtype: str
         :raises Exception: If the request fails.
         """
+
         args = {
             'model': args.model,
             'prompt': args.prompt,
@@ -237,7 +252,7 @@ class Sukima_ModelProvider(ModelProvider):
                 'rep_p_range': args.sample_args.rep_p_range,
                 'rep_p_slope': args.sample_args.rep_p_slope,
                 'bad_words': args.sample_args.bad_words,
-                'logit_biases': args.sample_args.logit_biases
+                'logit_biases': self.conv_listobj_to_listdict(args.sample_args.logit_biases)
             },
             'gen_args': {
                 'max_length': args.gen_args.max_length,
@@ -265,7 +280,8 @@ class Sukima_ModelProvider(ModelProvider):
         :return: The response from the endpoint.
         :rtype: str
         :raises Exception: If the request fails.
-        """    
+        """ 
+  
         args = {
             'model': args.model,
             'prompt': args.prompt,
@@ -280,7 +296,7 @@ class Sukima_ModelProvider(ModelProvider):
                 'rep_p_range': args.sample_args.rep_p_range,
                 'rep_p_slope': args.sample_args.rep_p_slope,
                 'bad_words': args.sample_args.bad_words,
-                'logit_biases': args.sample_args.logit_biases 
+                'logit_biases': self.conv_listobj_to_listdict(args.sample_args.logit_biases)  
             },
             'gen_args': {
                 'max_length': args.gen_args.max_length,
@@ -343,7 +359,7 @@ class Sukima_ModelProvider(ModelProvider):
                         raise Exception(f'Could not classify image. Error: {await resp.text()}')
             except Exception as e:
                 raise e
-
+            
     def should_respond(self, context, name):
         """Determine if the Sukima endpoint predicts that the name should respond to the given context.
 
