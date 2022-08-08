@@ -224,9 +224,12 @@ class Sukima_ModelProvider(ModelProvider):
         """
 
         list_dict = []
-        for object in list_objects:
-            list_dict.append(vars(object))
-        return list_dict 
+        if list_objects:
+            for object in list_objects:
+                list_dict.append(vars(object))
+            return list_dict
+        else:
+            return list_objects
     
     def generate(self, args: ModelGenRequest):
         """Generate a response from the Sukima endpoint.
